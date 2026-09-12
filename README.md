@@ -51,6 +51,21 @@ key 也可以不写进容器，每次请求带 `Authorization: Bearer user_...`�
 docker compose down
 ```
 
+### 日志
+
+请求日志打到容器 stdout（不含 API key 和 prompt）：
+
+```bash
+docker compose logs -f
+```
+
+```
+command2api 0.1.0 listening on http://[::]:8787 (upstream https://api.commandcode.ai)
+generate start proto=openai model=xiaomi/mimo-v2.5 stream=false key=user_xxxx…abcd
+generate done proto=openai model=xiaomi/mimo-v2.5 stream=false finish=stop dur=3s
+POST /v1/chat/completions 200 373B 3s
+```
+
 ---
 
 ## 给其他 agent 用

@@ -36,7 +36,7 @@ func New(cfg config.Config) *Server {
 	mux.HandleFunc("POST /v1/messages", s.handleMessages)
 	s.http = &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", cfg.Host, cfg.Port),
-		Handler:           limitBody(cfg.MaxBodyMB, mux),
+		Handler:           withAccessLog(limitBody(cfg.MaxBodyMB, mux)),
 		ReadHeaderTimeout: 15 * time.Second,
 	}
 	return s
@@ -111,10 +111,13 @@ func (s *Server) handleMessages(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) proxy(w http.ResponseWriter, r *http.Request, key string, req convert.Request, proto string) {
+	start := time.Now()
 	ctx := r.Context()
 	hint := firstNonEmpty(r.Header.Get("x-session-id"), r.Header.Get("x-claude-code-session-id"), req.PromptCacheKey)
+	log.Printf("generate start proto=%s model=%s stream=%v key=%s", proto, req.Model, req.Stream, maskKey(key))
 	resp, err := s.client.Generate(ctx, key, req, hint)
 	if err != nil {
+		log.Printf("generate error proto=%s model=%s dur=%s err=%v", proto, req.Model, time.Since(start).Truncate(time.Millisecond), err)
 		if proto == "anthropic" {
 			writeAnthropicError(w, http.StatusBadGateway, "api_error", err.Error())
 		} else {
@@ -126,6 +129,7 @@ func (s *Server) proxy(w http.ResponseWriter, r *http.Request, key string, req c
 	if resp.StatusCode >= 400 {
 		raw, _ := io.ReadAll(io.LimitReader(resp.Body, 8<<10))
 		status, typ, msg := mapUpstream(resp.StatusCode, raw)
+		log.Printf("generate upstream proto=%s model=%s status=%d mapped=%d dur=%s msg=%s", proto, req.Model, resp.StatusCode, status, time.Since(start).Truncate(time.Millisecond), truncate(msg, 160))
 		if proto == "anthropic" {
 			writeAnthropicError(w, status, typ, msg)
 		} else {
@@ -137,14 +141,16 @@ func (s *Server) proxy(w http.ResponseWriter, r *http.Request, key string, req c
 	if req.Stream {
 		if proto == "anthropic" {
 			streamAnthropic(w, r, resp.Body, req.Model)
-			return
+		} else {
+			streamOpenAI(w, r, resp.Body, req.Model)
 		}
-		streamOpenAI(w, r, resp.Body, req.Model)
+		log.Printf("generate done proto=%s model=%s stream=true upstream=%d dur=%s", proto, req.Model, resp.StatusCode, time.Since(start).Truncate(time.Millisecond))
 		return
 	}
 	acc := accumulate(resp.Body)
 	if acc.errMsg != "" {
 		status, typ, msg := mapUpstream(http.StatusBadGateway, []byte(acc.errMsg))
+		log.Printf("generate stream-error proto=%s model=%s dur=%s msg=%s", proto, req.Model, time.Since(start).Truncate(time.Millisecond), truncate(msg, 160))
 		if proto == "anthropic" {
 			writeAnthropicError(w, status, typ, msg)
 		} else {
@@ -152,6 +158,7 @@ func (s *Server) proxy(w http.ResponseWriter, r *http.Request, key string, req c
 		}
 		return
 	}
+	log.Printf("generate done proto=%s model=%s stream=false finish=%s dur=%s", proto, req.Model, acc.finish, time.Since(start).Truncate(time.Millisecond))
 	if proto == "anthropic" {
 		writeJSON(w, http.StatusOK, anthropicMessage(req.Model, acc))
 		return
@@ -601,6 +608,61 @@ func writeAnthropicError(w http.ResponseWriter, status int, typ, msg string) {
 
 func openaiErr(typ, msg string) map[string]any {
 	return map[string]any{"error": map[string]any{"message": msg, "type": typ}}
+}
+
+func withAccessLog(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/health" || r.URL.Path == "/" {
+			next.ServeHTTP(w, r)
+			return
+		}
+		lw := &logResponseWriter{ResponseWriter: w, status: http.StatusOK}
+		start := time.Now()
+		next.ServeHTTP(lw, r)
+		log.Printf("%s %s %d %dB %s", r.Method, r.URL.Path, lw.status, lw.bytes, time.Since(start).Truncate(time.Millisecond))
+	})
+}
+
+type logResponseWriter struct {
+	http.ResponseWriter
+	status int
+	bytes  int
+}
+
+func (w *logResponseWriter) WriteHeader(code int) {
+	w.status = code
+	w.ResponseWriter.WriteHeader(code)
+}
+
+func (w *logResponseWriter) Write(b []byte) (int, error) {
+	n, err := w.ResponseWriter.Write(b)
+	w.bytes += n
+	return n, err
+}
+
+func (w *logResponseWriter) Flush() {
+	if f, ok := w.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
+}
+
+func (w *logResponseWriter) Unwrap() http.ResponseWriter {
+	return w.ResponseWriter
+}
+
+func maskKey(k string) string {
+	if len(k) <= 12 {
+		return "user_***"
+	}
+	return k[:8] + "…" + k[len(k)-4:]
+}
+
+func truncate(s string, n int) string {
+	s = strings.ReplaceAll(strings.TrimSpace(s), "\n", " ")
+	if len(s) <= n {
+		return s
+	}
+	return s[:n] + "…"
 }
 
 func limitBody(mb int, next http.Handler) http.Handler {
