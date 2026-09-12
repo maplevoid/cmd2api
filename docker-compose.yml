@@ -1,0 +1,16 @@
+services:
+  command2api:
+    build:
+      context: .
+      args:
+        GO_IMAGE: ${GO_IMAGE:-golang:1.24-alpine}
+        RUN_IMAGE: ${RUN_IMAGE:-alpine:3.20}
+        GOPROXY: ${GOPROXY:-https://proxy.golang.org,direct}
+    image: command2api:local
+    ports:
+      - "8787:8787"
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "8787"
+      CC_API_KEY: ${CC_API_KEY:-}
+    restart: unless-stopped

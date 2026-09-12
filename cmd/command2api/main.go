@@ -1,0 +1,15 @@
+package main
+
+import (
+	"log"
+
+	"command2api/internal/config"
+	"command2api/internal/server"
+)
+
+func main() {
+	cfg := config.Load()
+	if err := server.New(cfg).ListenAndServe(); err != nil {
+		log.Fatal(err)
+	}
+}

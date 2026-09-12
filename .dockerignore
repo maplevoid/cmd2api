@@ -1,0 +1,14 @@
+.git
+.devenv
+.devenv.state
+.direnv
+.bin
+bin
+traces
+*.md
+.env
+.env.*
+devenv.lock
+devenv.nix
+devenv.yaml
+.devenv*

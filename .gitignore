@@ -1,0 +1,23 @@
+# build
+/bin/
+*.exe
+*.test
+*.out
+vendor/
+
+# devenv
+.devenv/
+.devenv.state/
+devenv.local.nix
+.pre-commit-config.yaml
+.direnv/
+
+# go / editor
+.idea/
+.vscode/
+*.swp
+
+# secrets
+.env
+traces/
+*.log
