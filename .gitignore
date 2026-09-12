@@ -1,9 +1,24 @@
 # build
 /bin/
+/out/
+command2api
 *.exe
 *.test
 *.out
+*.log
+coverage.*
 vendor/
+
+# secrets — never commit keys
+.env
+.env.*
+!.env.example
+
+# runtime / local
+traces/
+*.log
+tmp/
+.cache/
 
 # devenv
 .devenv/
@@ -12,12 +27,10 @@ devenv.local.nix
 .pre-commit-config.yaml
 .direnv/
 
-# go / editor
+# go / editor / os
 .idea/
 .vscode/
 *.swp
-
-# secrets
-.env
-traces/
-*.log
+*~
+.DS_Store
+Thumbs.db
