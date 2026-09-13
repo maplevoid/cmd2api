@@ -28,7 +28,7 @@ func Load() Config {
 		Port:        envInt("PORT", 8787),
 		APIBase:     strings.TrimRight(env("CC_API_BASE", "https://api.commandcode.ai"), "/"),
 		APIKey:      firstEnv("CC_API_KEY", "COMMANDCODE_API_KEY", "CMD_API_KEY"),
-		ProjectSlug: env("PROJECT_SLUG", "command2api"),
+		ProjectSlug: env("PROJECT_SLUG", "cmd2api"),
 		ZDR:         env("CMD_ZDR", "") == "1",
 		CLIVersion:  env("CC_VERSION", "1.53.1"),
 		MaxBodyMB:   envInt("CC_MAX_BODY_MB", 32),

@@ -11,11 +11,11 @@ import (
 	"strings"
 	"time"
 
-	"command2api/internal/cc"
-	"command2api/internal/config"
-	"command2api/internal/convert"
-	"command2api/internal/id"
-	"command2api/internal/models"
+	"cmd2api/internal/cc"
+	"cmd2api/internal/config"
+	"cmd2api/internal/convert"
+	"cmd2api/internal/id"
+	"cmd2api/internal/models"
 )
 
 var userKey = regexp.MustCompile(`user_[a-zA-Z0-9_-]+`)
@@ -47,7 +47,7 @@ func (s *Server) ListenAndServe() error {
 	if err != nil {
 		return err
 	}
-	log.Printf("command2api %s listening on http://%s (upstream %s)", config.Version, ln.Addr(), s.cfg.APIBase)
+	log.Printf("cmd2api %s listening on http://%s (upstream %s)", config.Version, ln.Addr(), s.cfg.APIBase)
 	return s.http.Serve(ln)
 }
 
@@ -58,7 +58,7 @@ func (s *Server) handleHealth(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, map[string]any{
 		"status":  "ok",
-		"name":    "command2api",
+		"name":    "cmd2api",
 		"version": config.Version,
 	})
 }

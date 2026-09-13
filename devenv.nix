@@ -10,9 +10,9 @@
 
   # Canonical task names — use these instead of raw commands.
   tasks = {
-    "app:run".exec = "go run ./cmd/command2api";
+    "app:run".exec = "go run ./cmd/cmd2api";
     "app:test".exec = "go test ./...";
     "app:fmt".exec = "gofumpt -w .";
-    "app:build".exec = "mkdir -p bin && go build -o bin/command2api ./cmd/command2api";
+    "app:build".exec = "mkdir -p bin && go build -o bin/cmd2api ./cmd/cmd2api";
   };
 }

@@ -11,9 +11,9 @@ import (
 	"sync"
 	"time"
 
-	"command2api/internal/config"
-	"command2api/internal/convert"
-	"command2api/internal/models"
+	"cmd2api/internal/config"
+	"cmd2api/internal/convert"
+	"cmd2api/internal/models"
 )
 
 type Client struct {
@@ -168,9 +168,9 @@ func slug(project, session string) string {
 		return project
 	}
 	if len(session) >= 8 {
-		return "command2api-" + session[:8]
+		return "cmd2api-" + session[:8]
 	}
-	return "command2api"
+	return "cmd2api"
 }
 
 func compactSession(id string) string {
