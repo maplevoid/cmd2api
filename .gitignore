@@ -1,7 +1,7 @@
 # build
 /bin/
 /out/
-command2api
+cmd2api
 *.exe
 *.test
 *.out

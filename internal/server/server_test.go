@@ -8,8 +8,8 @@ import (
 	"strings"
 	"testing"
 
-	"command2api/internal/cc"
-	"command2api/internal/config"
+	"cmd2api/internal/cc"
+	"cmd2api/internal/config"
 )
 
 func TestHealthAndAuth(t *testing.T) {
@@ -65,7 +65,7 @@ func TestOpenAIRoundTrip(t *testing.T) {
 	defer upstream.Close()
 
 	s := New(config.Config{
-		Host: "127.0.0.1", Port: 0, APIBase: upstream.URL, MaxBodyMB: 1, CLIVersion: "1.53.1", ProjectSlug: "command2api",
+		Host: "127.0.0.1", Port: 0, APIBase: upstream.URL, MaxBodyMB: 1, CLIVersion: "1.53.1", ProjectSlug: "cmd2api",
 	})
 
 	rr := httptest.NewRecorder()

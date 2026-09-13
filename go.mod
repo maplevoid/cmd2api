@@ -1,3 +1,3 @@
-module command2api
+module cmd2api
 
 go 1.24.0

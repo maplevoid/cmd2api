@@ -3,8 +3,8 @@ package main
 import (
 	"log"
 
-	"command2api/internal/config"
-	"command2api/internal/server"
+	"cmd2api/internal/config"
+	"cmd2api/internal/server"
 )
 
 func main() {

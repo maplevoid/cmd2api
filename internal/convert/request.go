@@ -5,7 +5,7 @@ import (
 	"strings"
 	"time"
 
-	"command2api/internal/id"
+	"cmd2api/internal/id"
 )
 
 const DefaultMaxTokens = 64000

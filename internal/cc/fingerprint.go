@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"command2api/internal/id"
+	"cmd2api/internal/id"
 )
 
 type Fingerprint struct {

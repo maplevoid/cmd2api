@@ -1,4 +1,4 @@
-# Command2Api
+# cmd2api
 
 把 [Command Code](https://commandcode.ai) 订阅（含 $1 Go 套餐）转成 **OpenAI / Anthropic 兼容 HTTP API**，给 pi、OpenCode、Claude Code 或其他 agent 用。
 
@@ -19,8 +19,8 @@ Go 套餐没有官方 OpenAI Provider 接口。本代理把客户端请求转到
 需要：Docker + Docker Compose，以及 Command Code Studio 的 API key（`user_...`）。
 
 ```bash
-git clone <this-repo> Command2Api
-cd Command2Api
+git clone <this-repo> cmd2api
+cd cmd2api
 cp .env.example .env
 # 编辑 .env，填入 CC_API_KEY=user_...
 docker compose up --build -d
@@ -60,7 +60,7 @@ docker compose logs -f
 ```
 
 ```
-command2api 0.1.0 listening on http://[::]:8787 (upstream https://api.commandcode.ai)
+cmd2api 0.1.0 listening on http://[::]:8787 (upstream https://api.commandcode.ai)
 generate start proto=openai model=xiaomi/mimo-v2.5 stream=false key=user_xxxx…abcd
 generate done proto=openai model=xiaomi/mimo-v2.5 stream=false finish=stop dur=3s
 POST /v1/chat/completions 200 373B 3s
@@ -77,7 +77,7 @@ POST /v1/chat/completions 200 373B 3s
 ```json
 {
   "providers": {
-    "command2api": {
+    "cmd2api": {
       "baseUrl": "http://127.0.0.1:8787/v1",
       "api": "openai-completions",
       "apiKey": "user_xxxxxxxx",
@@ -96,7 +96,7 @@ POST /v1/chat/completions 200 373B 3s
 }
 ```
 
-会话里 `/model command2api / xiaomi/mimo-v2.5`。
+会话里 `/model cmd2api / xiaomi/mimo-v2.5`。
 
 **curl（OpenAI）：**
 

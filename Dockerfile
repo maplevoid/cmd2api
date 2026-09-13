@@ -14,13 +14,13 @@ RUN go mod download
 
 COPY cmd ./cmd
 COPY internal ./internal
-RUN go build -trimpath -ldflags="-s -w" -o /out/command2api ./cmd/command2api
+RUN go build -trimpath -ldflags="-s -w" -o /out/cmd2api ./cmd/cmd2api
 
 FROM ${RUN_IMAGE}
 RUN apk --no-cache add ca-certificates tzdata wget \
  && adduser -D -H -u 65532 app
 WORKDIR /app
-COPY --from=builder /out/command2api /app/command2api
+COPY --from=builder /out/cmd2api /app/cmd2api
 
 ENV HOST=0.0.0.0 \
     PORT=8787 \
@@ -31,4 +31,4 @@ EXPOSE 8787
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s \
   CMD wget -qO- http://127.0.0.1:8787/health >/dev/null || exit 1
 
-ENTRYPOINT ["/app/command2api"]
+ENTRYPOINT ["/app/cmd2api"]
